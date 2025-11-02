@@ -1,11 +1,10 @@
 from rest_framework import generics
-# Import the base view from simplejwt
 from rest_framework_simplejwt.views import TokenObtainPairView 
-from .models import User
-# Import the serializers, including the new custom token serializer
-from .serializers import UserSignupSerializer, CustomTokenObtainPairSerializer
+from rest_framework import permissions # Keep permissions for BasePermission
 
-# --- Existing Signup View ---
+# Note: Product imports are removed.
+from .models import User
+from .serializers import UserSignupSerializer, CustomTokenObtainPairSerializer
 
 class UserSignupAPIView(generics.CreateAPIView):
     """
@@ -13,8 +12,6 @@ class UserSignupAPIView(generics.CreateAPIView):
     """
     queryset = User.objects.all()
     serializer_class = UserSignupSerializer
-    
-# --- NEW: Custom Login View ---
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     """
@@ -22,3 +19,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     This handles the authentication (username/password check) and token generation.
     """
     serializer_class = CustomTokenObtainPairSerializer
+
+# The IsOwnerOrReadOnly permission is moved to products/views.py where it is used.
+# If you want to keep the definition here, you must change the imports to be absolute:
+# from products.models import Product 

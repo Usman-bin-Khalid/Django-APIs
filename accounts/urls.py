@@ -10,6 +10,7 @@ urlpatterns = [
     # 2. JWT Login/Token Generation API (New)
     # Input: POST request with { "username": "...", "password": "..." }
     # Output: { "refresh": "...", "access": "..." }
+    # API path for login
     path('token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
 
     # 3. JWT Token Refresh API (New)

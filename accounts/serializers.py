@@ -1,4 +1,5 @@
 from rest_framework import serializers
+# --- FIX: Removed 'Product' from the import as it lives in the 'products' app ---
 from .models import User 
 from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -10,7 +11,7 @@ class UserPublicSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = User
-        # Include all fields that were part of the signup, except the password
+      
         fields = (
             'id', 
             'username', 
@@ -21,7 +22,6 @@ class UserPublicSerializer(serializers.ModelSerializer):
             'last_name', 
             'phone_number'
         )
-
 
 
 class UserSignupSerializer(serializers.ModelSerializer):
