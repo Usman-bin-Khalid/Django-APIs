@@ -65,7 +65,12 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
         token['username'] = user.username
         token['email'] = user.email
-        token['interest'] = user.interest
+        
+        # --- FIX: Safely handling optional fields that might be None ---
+        # If user.interest is None, convert it to an empty string to prevent 500 errors
+        token['interest'] = user.interest or ''
+        # --- FIX END ---
+        
         return token
     
     def validate(self, attrs):
