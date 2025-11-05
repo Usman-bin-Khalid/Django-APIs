@@ -23,7 +23,7 @@ class UserPublicSerializer(serializers.ModelSerializer):
             'phone_number'
         )
 
-
+ 
 class UserSignupSerializer(serializers.ModelSerializer):
     """
     Serializer for handling user registration data.
@@ -69,7 +69,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         # --- FIX: Safely handling optional fields that might be None ---
         # If user.interest is None, convert it to an empty string to prevent 500 errors
         token['interest'] = user.interest or ''
-        # --- FIX END ---
+        
         
         return token
     
