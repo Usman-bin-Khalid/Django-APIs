@@ -33,7 +33,8 @@ INSTALLED_APPS = [
     
     # Your apps
     'accounts',
-    'products'
+    'products',
+    'comments',
     
 ]
 

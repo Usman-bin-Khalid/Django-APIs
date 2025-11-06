@@ -9,5 +9,8 @@ urlpatterns = [
     path('api/v1/accounts/', include('accounts.urls')), 
     path('api/v1/', include('products.urls')),
     path('api/', include('products.urls')),
+    path('api/v1/', include('comments.urls')),
+    
+
  
 ]
