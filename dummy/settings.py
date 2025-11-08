@@ -1,5 +1,12 @@
+import os
+import environ
+import dj_database_url
 from datetime import timedelta
 from pathlib import Path
+
+# Initialize environ and read the .env file
+env = environ.Env()
+environ.Env.read_env() # Reads the .env file located at the same directory level
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -9,12 +16,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-j7ahjmz$2xc78t_fzt6!sd1)md7&-v6p1elsg$axsr@w$r=%wc'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG', default=False)
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS must include localhost, 127.0.0.1, and the Render domain pattern
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.onrender.com']
 
 
 # Application definition
@@ -30,12 +38,12 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'rest_framework_simplejwt',
+    'cloudinary', # <--- Added for Cloudinary integration
     
     # Your apps
     'accounts',
     'products',
     'comments',
-    
 ]
 
 # Custom User Model
@@ -43,6 +51,7 @@ AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', # <--- Added for production static file serving
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     # Note: CsrfViewMiddleware remains here, but DRF's authentication
@@ -73,14 +82,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'dummy.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+# Database (Supabase/PostgreSQL Configuration)
 
+# This uses dj_database_url to parse the Supabase connection string from .env
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=env('DATABASE_URL'),
+        conn_max_age=600
+    )
 }
 
 
@@ -115,10 +124,13 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
+# Static files (CSS, JavaScript, Images) for WhiteNoise
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+# This is the directory WhiteNoise will look into for collected static files
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 
 # ----------------------------------------------------------------------
 # DRF, JWT, and MEDIA Configuration (CRITICAL FOR AUTH AND IMAGE UPLOADS)
@@ -140,7 +152,7 @@ REST_FRAMEWORK = {
 
 # 2. JWT Configuration (Controls token lifespan and format)
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Increased for easier testing
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60), 
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
     'ALGORITHM': 'HS256',
@@ -150,9 +162,16 @@ SIMPLE_JWT = {
     'USER_ID_CLAIM': 'user_id',
 }
 
-# 3. Media File Settings (Needed to handle the 'prodImg' file field)
+# 3. Cloudinary Media File Settings (Replaces local media storage)
+
+# Load Cloudinary credentials from .env
+CLOUDINARY_CLOUD_NAME = env('CLOUDINARY_CLOUD_NAME')
+CLOUDINARY_API_KEY = env('CLOUDINARY_API_KEY')
+CLOUDINARY_API_SECRET = env('CLOUDINARY_API_SECRET')
+
+# Configure Django to use Cloudinary for all file uploads (prodImg)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
 # Default primary key field type
